@@ -10,6 +10,57 @@ if (mobileMenuToggle) {
 
 // Smooth Scroll Navigation
 const navLinks = document.querySelectorAll('.nav-link');
+let isProgrammaticScroll = false;
+
+// Function to calculate proper scroll offset
+function getScrollOffset() {
+    const isMobile = window.innerWidth <= 1024;
+    // Account for mobile menu toggle button (approximately 60px from top + padding)
+    if (isMobile) {
+        return 80; // Larger offset for mobile to account for menu toggle
+    }
+    return 20; // Smaller offset for desktop
+}
+
+// Function to scroll to section with proper handling
+function scrollToSection(targetSection) {
+    if (!targetSection) return;
+    
+    isProgrammaticScroll = true;
+    
+    // Make section visible immediately (skip fade-in animation)
+    targetSection.style.opacity = '1';
+    targetSection.style.transform = 'translateY(0)';
+    
+    // Calculate proper offset
+    const offset = getScrollOffset();
+    const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+    
+    // Scroll to section
+    window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+    });
+    
+    // Wait for scroll to complete, then reset flag
+    // Use a combination of scroll event and timeout to ensure completion
+    let scrollTimeout;
+    const checkScrollComplete = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            isProgrammaticScroll = false;
+            // Update active nav after scroll completes
+            updateActiveNav();
+        }, 100);
+    };
+    
+    // Check scroll completion
+    window.addEventListener('scroll', checkScrollComplete, { once: true });
+    setTimeout(() => {
+        isProgrammaticScroll = false;
+        updateActiveNav();
+    }, 1000); // Fallback timeout
+}
 
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
@@ -18,16 +69,15 @@ navLinks.forEach(link => {
         const targetSection = document.querySelector(targetId);
         
         if (targetSection) {
-            const offsetTop = targetSection.offsetTop - 20;
-            window.scrollTo({
-                top: offsetTop,
-                behavior: 'smooth'
-            });
-            
             // Close mobile menu if open
             if (sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
+            
+            // Small delay to ensure menu closes before scrolling
+            setTimeout(() => {
+                scrollToSection(targetSection);
+            }, 100);
         }
     });
 });
@@ -36,7 +86,10 @@ navLinks.forEach(link => {
 const sections = document.querySelectorAll('.section');
 
 function updateActiveNav() {
-    const scrollPosition = window.scrollY + 100;
+    const offset = getScrollOffset();
+    const scrollPosition = window.scrollY + offset + 50; // Add buffer for better detection
+    
+    let currentSection = null;
     
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
@@ -44,17 +97,28 @@ function updateActiveNav() {
         const sectionId = section.getAttribute('id');
         
         if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${sectionId}`) {
-                    link.classList.add('active');
-                }
-            });
+            currentSection = sectionId;
+        }
+    });
+    
+    // Update active nav link
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (currentSection && link.getAttribute('href') === `#${currentSection}`) {
+            link.classList.add('active');
         }
     });
 }
 
-window.addEventListener('scroll', updateActiveNav);
+// Throttle scroll events for better performance
+let scrollTimeout;
+window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+        updateActiveNav();
+    }, 10);
+});
+
 window.addEventListener('load', updateActiveNav);
 
 // Color Copy Functionality
@@ -264,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set initial active nav item
     updateActiveNav();
     
-    // Add fade-in animation to sections
+    // Add fade-in animation to sections (only for natural scrolling, not programmatic)
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -272,6 +336,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            // Skip animation if this is a programmatic scroll
+            if (isProgrammaticScroll) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                return;
+            }
+            
+            // Only animate if naturally scrolling
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
@@ -280,10 +352,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }, observerOptions);
     
     sections.forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(20px)';
-        section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        // Only set initial opacity if not already visible (for programmatic scrolls)
+        if (!section.hasAttribute('data-scrolled-to')) {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        }
         sectionObserver.observe(section);
     });
+    
+    // Handle hash navigation on page load
+    if (window.location.hash) {
+        const targetSection = document.querySelector(window.location.hash);
+        if (targetSection) {
+            // Mark as scrolled to and make visible immediately
+            targetSection.setAttribute('data-scrolled-to', 'true');
+            targetSection.style.opacity = '1';
+            targetSection.style.transform = 'translateY(0)';
+            
+            // Scroll to section after a brief delay to ensure content is loaded
+            setTimeout(() => {
+                scrollToSection(targetSection);
+            }, 100);
+        }
+    }
 });
 
