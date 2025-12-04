@@ -54,10 +54,18 @@ brandkit20/
 
 This is a static website that can be deployed to any static hosting service:
 
+- **GitHub Pages**: ✅ Live at [https://steemer473.github.io/levelplaydigital-brand-guide/](https://steemer473.github.io/levelplaydigital-brand-guide/)
 - **Netlify**: Drag and drop the folder or connect via Git
 - **Vercel**: Connect your repository
-- **GitHub Pages**: Push to a repository and enable Pages
 - **Any web server**: Upload all files to your web server
+
+### GitHub Pages
+
+The brand guide is hosted on GitHub Pages. To update:
+1. Make changes to files
+2. Commit: `git add . && git commit -m "Update description"`
+3. Push: `git push`
+4. Changes will be live within a few minutes
 
 ## Browser Support
 
@@ -89,12 +97,12 @@ This is a static website that can be deployed to any static hosting service:
 
 ## Brand Colors
 
-- **Primary Blue**: #275F98
-- **Accent Red Light**: #FF6568
-- **Accent Red**: #FB2C36
-- **Accent Red Dark**: #E40014
-- **Accent Red Deep**: #BF000F
-- **Black**: #000000
+- **Cyan**: #00C8FF
+- **Coral**: #FF6633
+- **Navy Blue**: #275F98
+- **Dark Navy**: #020817
+- **Slate**: #64748B
+- **Light Gray**: #F1F5F9
 - **White**: #FFFFFF
 
 ## Typography
