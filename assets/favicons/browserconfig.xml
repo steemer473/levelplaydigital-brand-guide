@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+  <msapplication>
+    <tile>
+      <square150x150logo src="assets/favicons/level-play-digital-favicon-192x192-android-chrome.png"/>
+      <TileColor>#00C8FF</TileColor>
+    </tile>
+  </msapplication>
+</browserconfig>
+
