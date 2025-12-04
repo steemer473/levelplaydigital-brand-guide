@@ -29,8 +29,32 @@ brandkit20/
 │   ├── logos/          # Logo files
 │   ├── fonts/          # Font files (if needed)
 │   └── examples/       # Example social media templates
+├── VERSION             # Current revision number
+├── update-revision.sh  # Script to update revision number
 └── README.md           # This file
 ```
+
+## Revision Management
+
+The brand guide includes automated revision tracking. To update the revision number:
+
+```bash
+# Update patch version (minor updates)
+./update-revision.sh patch
+
+# Update minor version (new features/sections)
+./update-revision.sh minor
+
+# Update major version (significant changes)
+./update-revision.sh major
+```
+
+The script will:
+- Update the VERSION file
+- Update revision in index.html (meta tag, badge, and footer)
+- Show next steps for committing
+
+A git pre-commit hook will prompt you to update the revision when index.html is modified.
 
 ## Usage
 
